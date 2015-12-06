@@ -1,0 +1,21 @@
+{
+  "name": "multi-armedbandit_backend",
+  "version": "0.0.0",
+  "description": "simple node backend for multi armed bandit implementation",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bassijtsma/multi-armedbandit_backend.git"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/bassijtsma/multi-armedbandit_backend/issues"
+  },
+  "dependencies": {
+    "express": "~4.13.3"
+  }
+}
