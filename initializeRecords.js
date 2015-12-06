@@ -13,7 +13,7 @@ function deleteRecords(db, callback) {
       db.collection('conversionStatistics').drop(function(err, result) {
         if (err) {
           console.log('deleting collection failed:', err);
-          reject();
+          resolve();
         } else {
           console.log('deleted successfully: ', result);
           resolve();
@@ -24,8 +24,10 @@ function deleteRecords(db, callback) {
   return deletePromise;
 }
 
-
-function insertInitialStats(db) {
+// Maybe async problem with for loop and callback being called before
+// documents have been fully inserted. Seems to work so far. If problem,
+// add promise
+function insertInitialStats(db, callback) {
   var colors = ['red', 'blue', 'green'];
 
   for (var i = 0; i < colors.length; i++) {
@@ -41,20 +43,24 @@ function insertInitialStats(db) {
       }
     });
   }
+  callback(null, 'success')
 }
 
 
 module.exports = {
   initialize: function initializeRecords(db, callback) {
 
-    deletePromise = deleteRecords(db);
+    deleteRecordsPromise = deleteRecords(db);
 
-    deletePromise.then(function() {
-      insertInitialStats(db);
+    deleteRecordsPromise.then(function() {
+      insertInitialStats(db, callback);
     });
 
-    deletePromise.catch(function() {
-      console.log('deleting failed, aborting')
+    deleteRecordsPromise.catch(function() {
+      console.log('deleting failed, collection probably doesnt exist, insert anyway')
+      insertInitialStats(db, callback);
+      callback('error deleting records', null)
     });
   }
+
 };
