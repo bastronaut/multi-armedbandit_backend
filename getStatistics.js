@@ -16,7 +16,17 @@ Sends back:
 var connection = require('./dbconnection');
 
 
-function getStatisticsFromDB(db, callback) {
+module.exports = {
+  getStatistics: function getStatistics(db, callback) {
+    var colorStatistics = getStatisticsFromDB(db)
+    .then(calculateAVGConversion)
+    .then(selectColor)
+    .then(callback);
+  }
+}
+
+
+function getStatisticsFromDB(db) {
   var statisticsQueryPromise = new Promise(
     function(resolve, reject) {
       db.collection('conversionStatistics').find().toArray(function(err, result) {
@@ -24,92 +34,98 @@ function getStatisticsFromDB(db, callback) {
         } else { resolve(result);}
       });
     });
-
     return statisticsQueryPromise;
 }
 
 
-// Returns a promise because otherwise selectedcolor is already calculated.
-// But: maybe reconsider because function is not asynchronous
 function calculateAVGConversion(colorStatistics) {
   avgConversionStats = {'allColorStats': [] };
-  console.log(colorStatistics);
-
-      colorStatistics.forEach(function(colorStats) {
-        var avgConversion;
-
-        try {
-          avgConversion = colorStats.views / colorStats.clicks;
-          if (isNaN(avgConversion)) {
-            avgConversion = 0
-          };
-        } catch (err) {
-          console.log('error calculating avgConversion', err);
-          avgConversion = 0;
-        }
-
-        var tempColorStats = {
-          'color': colorStats.color,
-          'views': colorStats.views,
-          'clicks': colorStats.clicks,
-          'avgConversion': avgConversion
-        };
+      colorStatistics.forEach(function(colorsStats) {
+        tempColorStats = buildStatisticsObjectForColor(colorsStats);
         avgConversionStats.allColorStats.push(tempColorStats);
       });
-
   return avgConversionStats;
 }
 
 
-function selectColor(AVGConversionStats) {
-
-  var bestPerformingColor;
-
-  AVGConversionStats.allColorStats.forEach(function(colorStats){
-    console.log(colorStats);
-  })
-
-  return 'tempcolor'
-}
-
-
-function returnStatistics() {
-
-}
-
-
-module.exports = {
-  getStatistics: function getStatistics(db, callback) {
-    // var statisticsQueryPromise = getStatisticsFromDB(db, 'placeholder');
-    // var AVGConversionStats = statisticsQueryPromise.then(calculateAVGConversion);
-    // var selectedColor = AVGConversionStats.then(selectColor);
-    var colorStatistics = getStatisticsFromDB(db, 'placeholder')
-    .then(calculateAVGConversion)
-    .then(selectColor)
-
-    testy.then(function (val) { console.log(val)})
-
-    // Start Error handling
-
-    // Gracefully fail: build
-    // statisticsQueryPromise.catch(
-    //   function(err, colorStatistics) {
-    //     console.log('error fetching data:\n', err, colorStatistics)
-    //   }
-    // )
-
-    // Gracefully fail: select a random color to send back with stub stats and
-    // notify app.js to update corresponding record
-    // AVGConversionStatsPromise.catch(
-    //   function(err, conversionStats) {
-    //     console.log('error calculating statistics:\n', err, conversionStats)
-    //   }
-    // )
-
-
-    calculateAVGConversion;
-    selectColor;
-    returnStatistics;
+function buildStatisticsObjectForColor(colorStats){
+  var avgConversion;
+  try {
+    avgConversion = colorStats.views / colorStats.clicks;
+    if (isNaN(avgConversion)) {
+      avgConversion = 0
+    };
+  } catch (err) {
+    console.log('error calculating avgConversion', err);
+    avgConversion = 0;
   }
 
+  var tempColorStats = {
+    'color': colorStats.color,
+    'views': colorStats.views,
+    'clicks': colorStats.clicks,
+    'avgConversion': avgConversion
+  };
+  return tempColorStats;
 }
+
+
+// Multi-armed bandit: 90% select best performer, 10% select random color. If
+// all performance is equal (no best performer), selecting the 1st value is no
+// problem. Algorithm will balance out
+function selectColor(AVGConversionStats) {
+  var selectedColor;
+  var randomNr = Math.random();
+
+  if (randomNr < 0.9) {
+    selectedColor = selectColorWithHighestAvgConversion(AVGConversionStats);
+  } else {
+    selectedColor = selectRandomColor(AVGConversionStats);
+  }
+
+  AVGConversionStats.selectedColor = selectedColor;
+  return AVGConversionStats;
+}
+
+
+function selectColorWithHighestAvgConversion(AVGConversionStats){
+  var bestPerformingColor;
+  var bestPerformingColorAVGConversion;
+
+  AVGConversionStats.allColorStats.forEach(function(colorStats){
+    if (bestPerformingColor === undefined) {
+      bestPerformingColor = colorStats.color;
+      bestPerformingColorAVGConversion = colorStats.avgConversion;
+    };
+    if (bestPerformingColorAVGConversion < colorStats.avgConversion) {
+      bestPerformingColor = colorStats.color;
+      bestPerformingColorAVGConversion = colorstats.avgConversion;
+    };
+  })
+  return bestPerformingColor;
+}
+
+
+function selectRandomColor(AVGConversionStats){
+  var randomIndex = Math.floor((Math.random() * AVGConversionStats.allColorStats.length));
+  return AVGConversionStats.allColorStats[randomIndex].color;
+}
+
+
+
+// Start Error handling
+
+// Gracefully fail: build
+// statisticsQueryPromise.catch(
+//   function(err, colorStatistics) {
+//     console.log('error fetching data:\n', err, colorStatistics)
+//   }
+// )
+
+// Gracefully fail: select a random color to send back with stub stats and
+// notify app.js to update corresponding record
+// AVGConversionStatsPromise.catch(
+//   function(err, conversionStats) {
+//     console.log('error calculating statistics:\n', err, conversionStats)
+//   }
+// )

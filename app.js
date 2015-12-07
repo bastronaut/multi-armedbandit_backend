@@ -46,8 +46,15 @@ app.get('/updateClickCount/:color', function (req, res) {
 
 
 app.get('/getStatistics/', function (req, res) {
-  var results = '';
-  getStatistics.getStatistics(connection.db);
-
-  res.send({'results': results})
+  // var results = '';
+  getStatistics.getStatistics(connection.db, function(results){
+    console.log('zeh results', results)
+    res.send(results);
+  });
 });
+
+// function handleColorStatsResponse(values) {
+//   console.log('haolo hlaho ah oaha', values)
+//     res.send({'results': values})
+//
+// }
