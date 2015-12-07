@@ -28,10 +28,6 @@ dbSingleton.initDB = function() {
     } else {
       dbSingleton.db = db;
       console.log('connection established ');
-
-      // for reinitialization. does not belong in dbconnection. but: must be
-      // called after the DB is initalized or it will fail. refactor later
-      // initializeRecords.initialize(dbSingleton.db, function(callback) {})
     }
   });
 }
