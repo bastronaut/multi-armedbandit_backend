@@ -16,34 +16,56 @@ Sends back:
 var connection = require('./dbconnection');
 
 
+function getStatisticsFromDB(db, callback) {
 
-function getStatisticsFromDB (db, callback) {
-  var cursor = db.collection('conversionStatistics').find();
-  cursor.each(function(err, doc){
-    if (doc != null) {
-    console.log(doc)}
-  })
+  var statisticsQueryPromise = new Promise(
+    function(resolve, reject) {
+      db.collection('conversionStatistics').find().toArray(function(err, result) {
+        if (err) {
+          reject(err, result);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+
+    return statisticsQueryPromise;
 }
 
 
-function calculateAVGConversion () {
+function calculateAVGConversion() {
 
 }
 
 
-function selectColor () {
+function selectColor() {
 
 }
 
 
-function returnStatistics () {
+function returnStatistics() {
 
 }
 
 
 module.exports = {
-  getStatistics : function getStatistics(db, callback) {
-    getStatisticsFromDB(db, 'placeholder');
+  getStatistics: function getStatistics(db, callback) {
+    var statisticsQueryPromise = getStatisticsFromDB(db, 'placeholder');
+
+    statisticsQueryPromise.then(
+      function(colorStatistics) {
+        console.log(colorStatistics);
+      }
+    )
+
+    // implement gracefull fail: select a random color to send back and
+    // notify app.js to update corresponding record
+    statisticsQueryPromise.catch(
+      function(err, colorStatistics) {
+        console.log('error fetching data:\n', err, colorStatistics)
+      }
+    )
+
     calculateAVGConversion;
     selectColor;
     returnStatistics;

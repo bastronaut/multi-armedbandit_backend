@@ -47,7 +47,7 @@ app.get('/updateClickCount/:color', function (req, res) {
 
 app.get('/getStatistics/', function (req, res) {
   var results = '';
-  getStatistics.getStatistics();
+  getStatistics.getStatistics(connection.db);
 
   res.send({'results': results})
 });

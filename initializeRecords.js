@@ -50,7 +50,7 @@ function insertInitialStats(db, callback) {
 module.exports = {
   initialize: function initializeRecords(db, callback) {
 
-    deleteRecordsPromise = deleteRecords(db);
+    var deleteRecordsPromise = deleteRecords(db);
 
     deleteRecordsPromise.then(function() {
       insertInitialStats(db, callback);
