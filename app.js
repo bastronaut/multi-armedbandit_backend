@@ -12,10 +12,6 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 }));
 
 
-app.get('/', function (req, res) {
-  res.send('hello world')
-});
-
 connection.getDB();
 
 var server = app.listen(3000, function() {
@@ -50,6 +46,7 @@ app.get('/getStatistics/', function (req, res) {
   getStatistics.getStatistics(connection.db, function(results){
     console.log('zeh results', results)
     res.send(results);
+    // TODO: implement updating view count call on selected color
   });
 });
 

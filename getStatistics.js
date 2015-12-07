@@ -123,7 +123,6 @@ function selectRandomColor(AVGConversionStats){
 
 // Start Error handling
 
-
 // Gracefully fail: Send back stub statistics and selectedcolor. Let app.js
 // handle updating view count
 function buildStubbedRecords(error) {
