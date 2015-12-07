@@ -61,7 +61,8 @@ function buildStatisticsObjectForColor(colorStats){
   var avgConversion;
   try {
     avgConversion = colorStats.views / colorStats.clicks;
-    if (isNaN(avgConversion)) {
+    // isFinite covers both dividing by 0 and NaN cases
+    if (!isFinite(avgConversion)) {
       avgConversion = 0
     };
   } catch (err) {

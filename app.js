@@ -36,13 +36,20 @@ app.get('/reinitialize/', function (req, res) {
 
 app.get('/updateClickCount/:color', function (req, res) {
   var color = req.params.color;
+  updateRecords.updateClicks(connection.db, color, function(err, result) {
+    console.log('ook hier nog goed')
+    res.send({'status' : 'success'});
+  })
+    // console.log(results);
+    // console.log('Update click count result: ', results)
+  // });
 });
 
 
 app.get('/getStatistics/', function (req, res) {
   // var results = '';
   getStatistics.getStatistics(connection.db, function(results){
-    console.log('zeh results', results)
+    console.log('Statistics results: ', results)
     res.send(results);
     // TODO: implement updating view count call on selected color
     updateRecords.updateView(connection.db, results.selectedColor)
