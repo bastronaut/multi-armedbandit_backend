@@ -3,10 +3,10 @@ File fetches the clicks and views for each color from the database, then
 performs the multi-armed bandit algorithm to select a single color to show the
 user. Briefly: 90% of the time, the algorithm selects the best performing color
 based on click/view ratio. The remaining 10% of the time it will select a
-random color.
+random color. Mocked data will be returned in case the steps fail.
 
 Sends back:
-{ 'selectedColor' : 'color', 'allColorStats' : [
+{ 'selectedColor' : 'color', 'status' : 'success', 'allColorStats' : [
   { 'color': 'red', 'views' : x, 'clicks' : y, 'ratio' : z },
   { 'color': 'blue', 'views' : x, 'clicks' : y, 'ratio': z }
   { 'color': 'green', 'views' : x, 'clicks' : y, 'ratio' : z} ]
@@ -21,7 +21,10 @@ module.exports = {
     var colorStatistics = getStatisticsFromDB(db)
     .then(calculateAVGConversion)
     .then(selectColor)
-    .then(callback);
+    .catch(buildStubbedRecords)
+    .catch(buildStubbedRecords)
+    .catch(buildStubbedRecords)
+    .then(callback)
   }
 }
 
@@ -30,7 +33,8 @@ function getStatisticsFromDB(db) {
   var statisticsQueryPromise = new Promise(
     function(resolve, reject) {
       db.collection('conversionStatistics').find().toArray(function(err, result) {
-        if (err) { reject(err, result);
+        if (err) {
+          return Promise.reject(err)
         } else { resolve(result);}
       });
     });
@@ -40,6 +44,11 @@ function getStatisticsFromDB(db) {
 
 function calculateAVGConversion(colorStatistics) {
   avgConversionStats = {'allColorStats': [] };
+      if (colorStatistics.length < 1) {
+        console.log('empty')
+        return Promise.reject('empty result set from database')
+      }
+
       colorStatistics.forEach(function(colorsStats) {
         tempColorStats = buildStatisticsObjectForColor(colorsStats);
         avgConversionStats.allColorStats.push(tempColorStats);
@@ -112,20 +121,18 @@ function selectRandomColor(AVGConversionStats){
 }
 
 
-
 // Start Error handling
 
-// Gracefully fail: build
-// statisticsQueryPromise.catch(
-//   function(err, colorStatistics) {
-//     console.log('error fetching data:\n', err, colorStatistics)
-//   }
-// )
 
-// Gracefully fail: select a random color to send back with stub stats and
-// notify app.js to update corresponding record
-// AVGConversionStatsPromise.catch(
-//   function(err, conversionStats) {
-//     console.log('error calculating statistics:\n', err, conversionStats)
-//   }
-// )
+// Gracefully fail: Send back stub statistics and selectedcolor. Let app.js
+// handle updating view count
+function buildStubbedRecords(error) {
+  console.log('building stub records...', error)
+  var stubResults =
+  {	"selectedColor": "red", "status" : "stubbed", "error" : error, "allColorStats": [
+    {	"color": "red", "views": 0,	"clicks": 0, "avgConversion": 0	},
+    {	"color": "blue","views": 0,	"clicks": 0, "avgConversion": 0 },
+    {	"color": "green",	"views": 0,	"clicks": 0, "avgConversion": 0	}],
+  }
+  return stubResults;
+}
