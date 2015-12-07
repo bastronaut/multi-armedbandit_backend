@@ -18,9 +18,11 @@ var connection = require('./dbconnection');
 
 module.exports = {
   getStatistics: function getStatistics(db, callback) {
-    var colorStatistics = getStatisticsFromDB(db)
+    getStatisticsFromDB(db)
     .then(calculateAVGConversion)
     .then(selectColor)
+    .then(incrementSelectedColorViewStat)
+    .catch(buildStubbedRecords)
     .catch(buildStubbedRecords)
     .catch(buildStubbedRecords)
     .catch(buildStubbedRecords)
@@ -45,7 +47,6 @@ function getStatisticsFromDB(db) {
 function calculateAVGConversion(colorStatistics) {
   avgConversionStats = {'allColorStats': [] };
       if (colorStatistics.length < 1) {
-        console.log('empty')
         return Promise.reject('empty result set from database')
       }
 
@@ -109,7 +110,7 @@ function selectColorWithHighestAvgConversion(AVGConversionStats){
     };
     if (bestPerformingColorAVGConversion < colorStats.avgConversion) {
       bestPerformingColor = colorStats.color;
-      bestPerformingColorAVGConversion = colorstats.avgConversion;
+      bestPerformingColorAVGConversion = colorStats.avgConversion;
     };
   })
   return bestPerformingColor;
@@ -122,15 +123,29 @@ function selectRandomColor(AVGConversionStats){
 }
 
 
+// The selected color must be incremented by 1 in the data structure, as to
+// reflect the pageview for the user who requested the data. Obviously: does
+// not deal with updating the database, which is handled by the app.js class
+function incrementSelectedColorViewStat(AVGConversionStats){
+  var selectedColor = AVGConversionStats.selectedColor;
+  avgConversionStats.allColorStats.forEach(function(colorStats){
+    if (colorStats.color === selectedColor) {
+      colorStats.views++;
+    }
+  })
+  return AVGConversionStats
+}
+
+
 // Start Error handling
 
-// Gracefully fail: Send back stub statistics and selectedcolor. Let app.js
+// Gracefully fail: Send back stub statistics and selectedColor. Let app.js
 // handle updating view count
 function buildStubbedRecords(error) {
   console.log('building stub records...', error)
   var stubResults =
   {	"selectedColor": "red", "status" : "stubbed", "error" : error, "allColorStats": [
-    {	"color": "red", "views": 0,	"clicks": 0, "avgConversion": 0	},
+    {	"color": "red", "views": 1,	"clicks": 0, "avgConversion": 0	},
     {	"color": "blue","views": 0,	"clicks": 0, "avgConversion": 0 },
     {	"color": "green",	"views": 0,	"clicks": 0, "avgConversion": 0	}],
   }
