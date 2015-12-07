@@ -5,8 +5,8 @@ module.exports = {
   updateView : function updateView(db, color) {
     incrementViewsForColor(db, color);
   },
-  updateClicks : function updateClicks(db, color) {
-    incrementClicksForColor(db, color);
+  updateClicks : function updateClicks(db, color, callback) {
+    incrementClicksForColor(db, color, callback);
   }
 }
 
@@ -17,9 +17,8 @@ function incrementClicksForColor(db, color, callback){
     { '$inc' : { 'clicks' : 1}
   }, function (err, results) {
     if (err) {
-      console.log(err);
+      callback(err);
     } else {
-      console.log('gaat goed')
       callback('success')
     }
   });

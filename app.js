@@ -36,13 +36,9 @@ app.get('/reinitialize/', function (req, res) {
 
 app.get('/updateClickCount/:color', function (req, res) {
   var color = req.params.color;
-  updateRecords.updateClicks(connection.db, color, function(err, result) {
-    console.log('ook hier nog goed')
-    res.send({'status' : 'success'});
+  updateRecords.updateClicks(connection.db, color, function(result) {
+    res.send({'status' : result});
   })
-    // console.log(results);
-    // console.log('Update click count result: ', results)
-  // });
 });
 
 
