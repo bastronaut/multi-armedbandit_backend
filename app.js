@@ -34,11 +34,9 @@ app.get('/reinitialize/', function (req, res) {
 });
 
 
-
 app.get('/updateClickCount/:color', function (req, res) {
   var color = req.params.color;
 });
-
 
 
 app.get('/getStatistics/', function (req, res) {
@@ -47,11 +45,6 @@ app.get('/getStatistics/', function (req, res) {
     console.log('zeh results', results)
     res.send(results);
     // TODO: implement updating view count call on selected color
+    updateRecords.updateView(connection.db, results.selectedColor)
   });
 });
-
-// function handleColorStatsResponse(values) {
-//   console.log('haolo hlaho ah oaha', values)
-//     res.send({'results': values})
-//
-// }
