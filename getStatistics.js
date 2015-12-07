@@ -32,39 +32,44 @@ function getStatisticsFromDB(db, callback) {
 // Returns a promise because otherwise selectedcolor is already calculated.
 // But: maybe reconsider because function is not asynchronous
 function calculateAVGConversion(colorStatistics) {
-  avgConversionStats = { 'allColorStats' : [] };
+  avgConversionStats = {'allColorStats': [] };
   console.log(colorStatistics);
-  colorStatistics.forEach(function(colorStats){
-    var avgConversion;
 
-    try {
-      avgConversion = colorStats.views / colorStats.clicks;
-      if (isNaN(avgConversion)) { avgConversion = 0};
-    } catch (err) {
-      console.log('error calculating avgConversion', err);
-      avgConversion = 0;
-    }
+      colorStatistics.forEach(function(colorStats) {
+        var avgConversion;
 
-    var tempColorStats = {
-      'color' : colorStats.color,
-      'views' : colorStats.views,
-      'clicks' : colorStats.clicks,
-      'avgConversion' : avgConversion
-    };
+        try {
+          avgConversion = colorStats.views / colorStats.clicks;
+          if (isNaN(avgConversion)) {
+            avgConversion = 0
+          };
+        } catch (err) {
+          console.log('error calculating avgConversion', err);
+          avgConversion = 0;
+        }
 
-    avgConversionStats.allColorStats.push(tempColorStats);
-  });
-  return(avgConversionStats);
+        var tempColorStats = {
+          'color': colorStats.color,
+          'views': colorStats.views,
+          'clicks': colorStats.clicks,
+          'avgConversion': avgConversion
+        };
+        avgConversionStats.allColorStats.push(tempColorStats);
+      });
+
+  return avgConversionStats;
 }
 
 
 function selectColor(AVGConversionStats) {
+
   var bestPerformingColor;
 
-  // AVGConversionStats.allColorStats.forEach(function(colorStats){
-  //   console.log(colorStats);
-  // })
+  AVGConversionStats.allColorStats.forEach(function(colorStats){
+    console.log(colorStats);
+  })
 
+  return 'tempcolor'
 }
 
 
@@ -75,20 +80,23 @@ function returnStatistics() {
 
 module.exports = {
   getStatistics: function getStatistics(db, callback) {
-    var statisticsQueryPromise = getStatisticsFromDB(db, 'placeholder');
-    var AVGConversionStats = statisticsQueryPromise.then(calculateAVGConversion);
-    var selectedColor = selectColor(AVGConversionStats);
+    // var statisticsQueryPromise = getStatisticsFromDB(db, 'placeholder');
+    // var AVGConversionStats = statisticsQueryPromise.then(calculateAVGConversion);
+    // var selectedColor = AVGConversionStats.then(selectColor);
+    var colorStatistics = getStatisticsFromDB(db, 'placeholder')
+    .then(calculateAVGConversion)
+    .then(selectColor)
 
-
+    testy.then(function (val) { console.log(val)})
 
     // Start Error handling
 
     // Gracefully fail: build
-    statisticsQueryPromise.catch(
-      function(err, colorStatistics) {
-        console.log('error fetching data:\n', err, colorStatistics)
-      }
-    )
+    // statisticsQueryPromise.catch(
+    //   function(err, colorStatistics) {
+    //     console.log('error fetching data:\n', err, colorStatistics)
+    //   }
+    // )
 
     // Gracefully fail: select a random color to send back with stub stats and
     // notify app.js to update corresponding record
