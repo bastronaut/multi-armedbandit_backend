@@ -21,7 +21,7 @@ module.exports = {
     getStatisticsFromDB(db)
     .then(calculateAVGConversion)
     .then(selectColor)
-    .then(incrementSelectedColorViewStat)
+    .then(incrementSelectedColorStats)
     .catch(buildStubbedRecords)
     .catch(buildStubbedRecords)
     .catch(buildStubbedRecords)
@@ -61,7 +61,7 @@ function calculateAVGConversion(colorStatistics) {
 function buildStatisticsObjectForColor(colorStats){
   var avgConversion;
   try {
-    avgConversion = colorStats.views / colorStats.clicks;
+    avgConversion = colorStats.clicks / colorStats.views;
     // isFinite covers both dividing by 0 and NaN cases
     if (!isFinite(avgConversion)) {
       avgConversion = 0
@@ -91,6 +91,7 @@ function selectColor(AVGConversionStats) {
   if (randomNr < 0.9) {
     selectedColor = selectColorWithHighestAvgConversion(AVGConversionStats);
   } else {
+    console.log('picking a random color...')
     selectedColor = selectRandomColor(AVGConversionStats);
   }
 
@@ -109,9 +110,12 @@ function selectColorWithHighestAvgConversion(AVGConversionStats){
       bestPerformingColorAVGConversion = colorStats.avgConversion;
     };
     if (bestPerformingColorAVGConversion < colorStats.avgConversion) {
+      console.log('score is higher for,', colorStats.color, ' switching')
       bestPerformingColor = colorStats.color;
       bestPerformingColorAVGConversion = colorStats.avgConversion;
-    };
+    } else {
+      console.log('score is not higher for', colorStats.color)
+    }
   })
   return bestPerformingColor;
 }
@@ -123,14 +127,16 @@ function selectRandomColor(AVGConversionStats){
 }
 
 
-// The selected color must be incremented by 1 in the data structure, as to
-// reflect the pageview for the user who requested the data. Obviously: does
-// not deal with updating the database, which is handled by the app.js class
-function incrementSelectedColorViewStat(AVGConversionStats){
+// To reflect the pageview of the user who requested the data, the selected
+// color must have its views count incremented and avgConversion recalculated.
+// Obviously: does not deal with updating the database,
+// which is handled by the app.js class
+function incrementSelectedColorStats(AVGConversionStats){
   var selectedColor = AVGConversionStats.selectedColor;
   avgConversionStats.allColorStats.forEach(function(colorStats){
     if (colorStats.color === selectedColor) {
       colorStats.views++;
+      colorStats.avgConversion = colorStats.clicks / colorStats.views;
     }
   })
   return AVGConversionStats
