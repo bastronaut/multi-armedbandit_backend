@@ -1,7 +1,11 @@
 # multi-armedbandit_backend
 Simple backend written in nodejs for multi-armed bandit test implementation. Runs on simple mongodb database.
 
-To set it up ensure the correct value is set for the mongodb location. This is done in dbconnection.js in the 'url' variable.
+To set it up ensure the correct value is set for the mongodb location. This is done in dbconnection.js in the 'url' variable:
+
+```
+var url = 'mongodb://localhost:27017/databasename';
+```
 
 Entry is in app.js. Exposes three endpoints:
 
