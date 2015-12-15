@@ -7,13 +7,16 @@ To set it up ensure the correct value is set for the mongodb location. This is d
 var url = 'mongodb://localhost:27017/databasename';
 ```
 
-Entry is in app.js. Exposes three endpoints:
+Entry is in app.js. Exposes four endpoints:
 
 1. /getStatistics:
-Will fetch and return the colors from the db and their respective number of clicks and views. Will calculate the average conversion for each color, perform the multi-armed bandit algorithm based on the results and update the db to reflect the pageview.
+Will fetch and return the colors from the db and their respective number of clicks and views. Will calculate the average conversion for each color.
 
 2. /updateClickCount/<colorvalue>
 Called whenever a button was clicked to update the click count for the respective color.
 
 3. /reinitialize
 resets the database values, works for initializing. Will insert three colors, all with 0 views and 0 clicks.
+
+4. /getColor
+Perform the multi-armed bandit algorithm based on the results and update the db to reflect the pageview.
