@@ -33,8 +33,8 @@ function insertInitialStats(db, callback) {
   for (var i = 0; i < colors.length; i++) {
     db.collection('conversionStatistics').insertOne({
       "color": colors[i],
-      "views": 0,
-      "clicks": 0
+      "views": 1,
+      "clicks": 1
     }, function(err, result) {
       if (err) {
         console.log(err)

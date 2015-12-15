@@ -5,12 +5,19 @@ var connection = require('./dbconnection');
 var initializeRecords = require('./initializeRecords');
 var getStatistics = require('./getStatistics');
 var updateRecords = require('./updateRecords');
+var getColor = require('./getColor');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
    extended: true
 }));
 
+app.use(function(req, res, next) {
+   res.setHeader('Access-Control-Allow-Origin', '*');
+   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+   res.setHeader('Content-Type', 'application/json');
+   next();
+});
 
 connection.getDB();
 
@@ -43,11 +50,17 @@ app.get('/updateClickCount/:color', function (req, res) {
 
 
 app.get('/getStatistics/', function (req, res) {
-  // var results = '';
   getStatistics.getStatistics(connection.db, function(results){
     console.log('Statistics results: ', results)
     res.send(results);
-    // TODO: implement updating view count call on selected color
-    updateRecords.updateView(connection.db, results.selectedColor)
+
   });
 });
+
+
+app.get('/getColor/', function (req, res) {
+  getColor.getColor(connection.db, function(results){
+    updateRecords.updateView(connection.db, results.selectedColor)
+    res.send(results);
+  })
+})
