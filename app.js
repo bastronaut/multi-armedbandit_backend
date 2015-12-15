@@ -60,7 +60,8 @@ app.get('/getStatistics/', function (req, res) {
 
 app.get('/getColor/', function (req, res) {
   getColor.getColor(connection.db, function(results){
-    updateRecords.updateView(connection.db, results.selectedColor)
-    res.send(results);
+    updateRecords.updateView(connection.db, results.selectedColor, function () {
+      res.send(results);
+    })
   })
 })
