@@ -41,7 +41,7 @@ app.get('/reinitialize/', function (req, res) {
 });
 
 
-app.get('/updateClickCount/:color', function (req, res) {
+app.put('/clickcount/:color', function (req, res) {
   var color = req.params.color;
   updateRecords.updateClicks(connection.db, color, function(result) {
     res.send({'status' : result});
@@ -49,7 +49,7 @@ app.get('/updateClickCount/:color', function (req, res) {
 });
 
 
-app.get('/getStatistics/', function (req, res) {
+app.get('/statistics/', function (req, res) {
   getStatistics.getStatistics(connection.db, function(results){
     console.log('Statistics results: ', results)
     res.send(results);
@@ -58,7 +58,7 @@ app.get('/getStatistics/', function (req, res) {
 });
 
 
-app.get('/getColor/', function (req, res) {
+app.get('/color/', function (req, res) {
   getColor.getColor(connection.db, function(results){
     updateRecords.updateView(connection.db, results.selectedColor, function () {
       res.send(results);
