@@ -1,3 +1,4 @@
+var config = require('./config');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
@@ -6,6 +7,7 @@ var initializeRecords = require('./initializeRecords');
 var getStatistics = require('./getStatistics');
 var updateRecords = require('./updateRecords');
 var getColor = require('./getColor');
+var PORT = config.port;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
@@ -21,7 +23,7 @@ app.use(function(req, res, next) {
 
 connection.getDB();
 
-var server = app.listen(3000, function() {
+var server = app.listen(PORT, function() {
   var host = server.address().address;
   var port = server.address().port;
 
@@ -41,14 +43,6 @@ app.get('/reinitialize/', function (req, res) {
 });
 
 
-app.put('/clickcount/:color', function (req, res) {
-  var color = req.params.color;
-  updateRecords.updateClicks(connection.db, color, function(result) {
-    res.send({'status' : result});
-  })
-});
-
-
 app.get('/statistics/', function (req, res) {
   getStatistics.getStatistics(connection.db, function(results){
     console.log('Statistics results: ', results)
@@ -63,5 +57,13 @@ app.get('/color/', function (req, res) {
     updateRecords.updateView(connection.db, results.selectedColor, function () {
       res.send(results);
     })
+  });
+}
+
+
+app.put('/clickcount/:color', function (req, res) {
+  var color = req.params.color;
+  updateRecords.updateClicks(connection.db, color, function(result) {
+    res.send({'status' : result});
   })
-})
+});

@@ -6,7 +6,8 @@ Currently no problem when a single  DB is used.
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var initializeRecords = require('./initializeRecords');
-var url = 'mongodb://localhost:27017/test';
+var config = require('./config');
+var url = config.mongoUrl;
 
 // container function for singleton
 var dbSingleton = function() {};
