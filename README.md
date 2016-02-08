@@ -1,7 +1,7 @@
 # multi-armedbandit_backend
 Simple backend written in nodejs for multi-armed bandit test implementation. Runs on simple mongodb database. Done to experiment with how the algorithm will balance over time.
 
-Find the frontend here: https://github.com/bassijtsma/multi-armedbandit
+Find the frontend here: https://github.com/bassijtsma/multi-armedbandit_frontend
 
 To set it up ensure the correct value is set for the mongodb location in the config file.
 
